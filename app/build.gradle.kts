@@ -56,4 +56,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation(libs.androidx.navigation)
+    implementation(libs.androidx.ui.text)
+    implementation(libs.androidx.accompanist.systemuicontroller)
+    implementation(libs.androidx.compose.foundation)
 }
