@@ -41,6 +41,13 @@ import org.sopt.and.core.common.modifier.noRippleClickable
 import org.sopt.and.core.designsystem.component.button.WavveButton
 import org.sopt.and.core.designsystem.component.textfield.WavveTextField
 import org.sopt.and.ui.theme.DarkGray3
+import kotlinx.serialization.Serializable
+import org.sopt.and.feature.main.Screen
+
+@Serializable
+data object LoginRoute {
+    const val route = "login"
+}
 
 @Composable
 fun LoginRoute(
@@ -60,8 +67,8 @@ fun LoginRoute(
         viewModel.loginEvent.collect { event ->
             when (event) {
                 is LoginEvent.Success -> {
-                    navController.navigate("mypage") {
-                        popUpTo("login") { inclusive = true }
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
                     }
                 }
 

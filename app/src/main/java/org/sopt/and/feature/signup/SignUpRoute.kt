@@ -36,10 +36,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import org.sopt.and.core.common.modifier.noRippleClickable
 import org.sopt.and.core.designsystem.component.button.WavveButton
 import org.sopt.and.ui.theme.DarkGray2
 import org.sopt.and.ui.theme.DarkGray3
+
+@Serializable
+data object SignUpRoute {
+    const val route = "signup"
+}
 
 @Composable
 fun SignUpRoute(

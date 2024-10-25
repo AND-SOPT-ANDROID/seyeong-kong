@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -61,4 +62,6 @@ dependencies {
     implementation(libs.androidx.ui.text)
     implementation(libs.androidx.accompanist.systemuicontroller)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.io.coil.kt )
+    implementation(libs.kotlinx.serialization.json)
 }
