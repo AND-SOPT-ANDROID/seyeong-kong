@@ -3,4 +3,19 @@
     <string name="home">홈</string>
     <string name="search">검색</string>
     <string name="profile">프로필</string>
+    <string name="wavve_recommended">믿고 보는 웨이브 에디터 추천작</string>
+    <string name="today_top_rank">오늘의 TOP 20</string>
+
+    <string name="full_view_history">전체 시청 내역</string>
+    <string name="no_full_view_history">시청내역이 없어요</string>
+    <string name="interested_program">관심 프로그램</string>
+    <string name="no_interested_program">관심 프로그램이 없어요</string>
+    <string name="interested_movie">관심 영화</string>
+    <string name="no_interested_movie">관심 영화가 없어요</string>
+    <string name="interested_editor_pick">관심 에디터 픽</string>
+    <string name="empty_editor_pick">관심 에디터 픽이 없습니다.</string>
+    <string name="logout">로그아웃</string>
+    <string name="no_subscription">현재 보유하신 이용권이 없습니다.</string>
+    <string name="buy_subscription">구매하기 ></string>
+    <string name="user_name_format">%s 님</string>
 </resources>
