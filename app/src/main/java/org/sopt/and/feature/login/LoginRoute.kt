@@ -59,9 +59,9 @@ fun LoginRoute(
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    var emailErrorVisible by remember { mutableStateOf(false) }
-    var passwordErrorVisible by remember { mutableStateOf(false) }
+    var ispasswordVisible by remember { mutableStateOf(false) }
+    var isemailErrorVisible by remember { mutableStateOf(false) }
+    var ispasswordErrorVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel.loginEvent) {
         viewModel.loginEvent.collect { event ->
@@ -86,15 +86,15 @@ fun LoginRoute(
         onEmailChange = { email = it },
         password = password,
         onPasswordChange = { password = it },
-        passwordVisible = passwordVisible,
-        onPasswordVisibilityChange = { passwordVisible = !passwordVisible },
+        passwordVisible = ispasswordVisible,
+        onPasswordVisibilityChange = { ispasswordVisible = !ispasswordVisible },
         onLoginClick = { viewModel.onLoginClick(email, password) },
-        passwordErrorVisible = passwordErrorVisible,
+        passwordErrorVisible = ispasswordErrorVisible,
         onEmailFocusChanged = { isFocused ->
-            emailErrorVisible = isFocused && email.isEmpty()
+            isemailErrorVisible = isFocused && email.isEmpty()
         },
         onPasswordFocusChanged = { isFocused ->
-            passwordErrorVisible = isFocused && password.isEmpty()
+            ispasswordErrorVisible = isFocused && password.isEmpty()
         },
         onNavigateToSignUp = { navController.navigate("signup") },
         snackbarHostState = snackbarHostState
