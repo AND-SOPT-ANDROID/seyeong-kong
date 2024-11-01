@@ -41,6 +41,13 @@ import org.sopt.and.core.common.modifier.noRippleClickable
 import org.sopt.and.core.designsystem.component.button.WavveButton
 import org.sopt.and.core.designsystem.component.textfield.WavveTextField
 import org.sopt.and.ui.theme.DarkGray3
+import kotlinx.serialization.Serializable
+import org.sopt.and.feature.main.Screen
+
+@Serializable
+data object LoginRoute {
+    const val route = "login"
+}
 
 @Composable
 fun LoginRoute(
@@ -52,16 +59,16 @@ fun LoginRoute(
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    var emailErrorVisible by remember { mutableStateOf(false) }
-    var passwordErrorVisible by remember { mutableStateOf(false) }
+    var ispasswordVisible by remember { mutableStateOf(false) }
+    var isemailErrorVisible by remember { mutableStateOf(false) }
+    var ispasswordErrorVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel.loginEvent) {
         viewModel.loginEvent.collect { event ->
             when (event) {
                 is LoginEvent.Success -> {
-                    navController.navigate("mypage") {
-                        popUpTo("login") { inclusive = true }
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
                     }
                 }
 
@@ -79,15 +86,15 @@ fun LoginRoute(
         onEmailChange = { email = it },
         password = password,
         onPasswordChange = { password = it },
-        passwordVisible = passwordVisible,
-        onPasswordVisibilityChange = { passwordVisible = !passwordVisible },
+        passwordVisible = ispasswordVisible,
+        onPasswordVisibilityChange = { ispasswordVisible = !ispasswordVisible },
         onLoginClick = { viewModel.onLoginClick(email, password) },
-        passwordErrorVisible = passwordErrorVisible,
+        passwordErrorVisible = ispasswordErrorVisible,
         onEmailFocusChanged = { isFocused ->
-            emailErrorVisible = isFocused && email.isEmpty()
+            isemailErrorVisible = isFocused && email.isEmpty()
         },
         onPasswordFocusChanged = { isFocused ->
-            passwordErrorVisible = isFocused && password.isEmpty()
+            ispasswordErrorVisible = isFocused && password.isEmpty()
         },
         onNavigateToSignUp = { navController.navigate("signup") },
         snackbarHostState = snackbarHostState

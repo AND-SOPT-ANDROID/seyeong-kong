@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">AND-ANDROID</string>
+    <string name="home">홈</string>
+    <string name="search">검색</string>
+    <string name="profile">프로필</string>
 </resources>
