@@ -39,6 +39,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.sopt.and.core.common.modifier.noRippleClickable
 import org.sopt.and.core.designsystem.component.button.WavveButton
+import org.sopt.and.feature.login.LoginRoute
 import org.sopt.and.ui.theme.DarkGray2
 import org.sopt.and.ui.theme.DarkGray3
 
@@ -55,22 +56,19 @@ fun SignUpRoute(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    var email by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var ispasswordVisible by remember { mutableStateOf(false) }
-    var isemailErrorVisible by remember { mutableStateOf(false) }
-    var ispasswordErrorVisible by remember { mutableStateOf(false) }
+    var hobby by remember { mutableStateOf("") }
+    var isPasswordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel.signUpEvent) {
         viewModel.signUpEvent.collect { event ->
             when (event) {
                 is SignUpEvent.Success -> {
-                    navController.navigate("login") {
-                        popUpTo("signup") { inclusive = true }
+                    navController.navigate(LoginRoute.route) {
+                        popUpTo(SignUpRoute.route) { inclusive = true }
                     }
-
                 }
-
                 is SignUpEvent.Failure -> {
                     coroutineScope.launch {
                         snackbarHostState.showSnackbar(event.message)
@@ -81,43 +79,35 @@ fun SignUpRoute(
     }
 
     SignUpScreen(
-        email = email,
-        onEmailChange = { email = it },
+        username = username,
+        onUsernameChange = { username = it },
         password = password,
         onPasswordChange = { password = it },
-        passwordVisible = ispasswordVisible,
-        onPasswordVisibilityChange = { ispasswordVisible = !ispasswordVisible },
-        onSignUpClick = { viewModel.onSignUpClick(email, password) },
-        emailErrorVisible = isemailErrorVisible,
-        passwordErrorVisible = ispasswordErrorVisible,
-        onEmailFocusChanged = { isFocused ->
-            isemailErrorVisible = isFocused && email.isEmpty()
-        },
-        onPasswordFocusChanged = { isFocused ->
-            ispasswordErrorVisible = isFocused && password.isEmpty()
-        },
+        hobby = hobby,
+        onHobbyChange = { hobby = it },
+        passwordVisible = isPasswordVisible,
+        onPasswordVisibilityChange = { isPasswordVisible = !isPasswordVisible },
+        onSignUpClick = { viewModel.onSignUpClick(username, password, hobby) },
         snackbarHostState = snackbarHostState
     )
 }
 
 @Composable
 fun SignUpScreen(
-    email: String,
-    onEmailChange: (String) -> Unit,
+    username: String,
+    onUsernameChange: (String) -> Unit,
     password: String,
     onPasswordChange: (String) -> Unit,
+    hobby: String,
+    onHobbyChange: (String) -> Unit,
     passwordVisible: Boolean,
     onPasswordVisibilityChange: () -> Unit,
     onSignUpClick: () -> Unit,
-    emailErrorVisible: Boolean,
-    passwordErrorVisible: Boolean,
-    onEmailFocusChanged: (Boolean) -> Unit,
-    onPasswordFocusChanged: (Boolean) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
-    val emailFocusRequester = remember { FocusRequester() }
+    val usernameFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
-    val signUpButtonFocusRequester = remember { FocusRequester() }
+    val hobbyFocusRequester = remember { FocusRequester() }
 
     Box(
         modifier = Modifier
@@ -138,7 +128,7 @@ fun SignUpScreen(
             )
 
             Text(
-                text = "이메일과 비밀번호만으로\nWavve를 즐길 수 있어요!",
+                text = "사용자 이름, 비밀번호, 취미를 입력하여\nWavve를 즐길 수 있어요!",
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 color = Gray,
@@ -148,16 +138,13 @@ fun SignUpScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             WavveTextField(
-                value = email,
-                onValueChange = onEmailChange,
-                placeholder = "wavve@example.com",
-                errorMessage = if (emailErrorVisible) "로그인, 비밀번호 찾기, 알림에 사용되니 정확한 이메일을 입력해주세요." else null,
-                onFocusChanged = { isFocused ->
-                    onEmailFocusChanged(isFocused)
-                },
+                value = username,
+                onValueChange = onUsernameChange,
+                placeholder = "사용자 이름",
+                onFocusChanged = { /* 사용자 이름 필드의 포커스 변화 처리 */ },
                 onNext = { passwordFocusRequester.requestFocus() },
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = Next),
-                modifier = Modifier.focusRequester(emailFocusRequester)
+                modifier = Modifier.focusRequester(usernameFocusRequester)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -165,16 +152,24 @@ fun SignUpScreen(
             WavveTextField(
                 value = password,
                 onValueChange = onPasswordChange,
-                placeholder = "Wavve 비밀번호 설정",
+                placeholder = "비밀번호 설정",
                 isPassword = true,
                 passwordVisible = passwordVisible,
                 onPasswordVisibilityChange = onPasswordVisibilityChange,
-                errorMessage = if (passwordErrorVisible) "비밀번호는 8~20자 이내로 영문 대소문자, 숫자, 특수문자 중 3가지 이상 혼용하여 입력해 주세요." else null,
-                onFocusChanged = { isFocused ->
-                    onPasswordFocusChanged(isFocused)
-                },
-                onNext = { signUpButtonFocusRequester.requestFocus() },
+                onFocusChanged = { /* 비밀번호 필드의 포커스 변화 처리 */ },
+                onNext = { hobbyFocusRequester.requestFocus() },
                 modifier = Modifier.focusRequester(passwordFocusRequester)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            WavveTextField(
+                value = hobby,
+                onValueChange = onHobbyChange,
+                placeholder = "취미",
+                onFocusChanged = { /* 취미 필드의 포커스 변화 처리 */ },
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = Next),
+                modifier = Modifier.focusRequester(hobbyFocusRequester)
             )
 
             Spacer(modifier = Modifier.weight(1f))

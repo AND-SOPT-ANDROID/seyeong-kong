@@ -57,11 +57,11 @@ fun LoginRoute(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    var email by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var ispasswordVisible by remember { mutableStateOf(false) }
-    var isemailErrorVisible by remember { mutableStateOf(false) }
-    var ispasswordErrorVisible by remember { mutableStateOf(false) }
+    var isPasswordVisible by remember { mutableStateOf(false) }
+    var isUsernameErrorVisible by remember { mutableStateOf(false) }
+    var isPasswordErrorVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel.loginEvent) {
         viewModel.loginEvent.collect { event ->
@@ -82,19 +82,20 @@ fun LoginRoute(
     }
 
     LoginScreen(
-        email = email,
-        onEmailChange = { email = it },
+        username = username,
+        onUsernameChange = { username = it },
         password = password,
         onPasswordChange = { password = it },
-        passwordVisible = ispasswordVisible,
-        onPasswordVisibilityChange = { ispasswordVisible = !ispasswordVisible },
-        onLoginClick = { viewModel.onLoginClick(email, password) },
-        passwordErrorVisible = ispasswordErrorVisible,
-        onEmailFocusChanged = { isFocused ->
-            isemailErrorVisible = isFocused && email.isEmpty()
+        passwordVisible = isPasswordVisible,
+        onPasswordVisibilityChange = { isPasswordVisible = !isPasswordVisible },
+        onLoginClick = { viewModel.onLoginClick(username, password) },
+        usernameErrorVisible = isUsernameErrorVisible,
+        passwordErrorVisible = isPasswordErrorVisible,
+        onUsernameFocusChanged = { isFocused ->
+            isUsernameErrorVisible = isFocused && username.isEmpty()
         },
         onPasswordFocusChanged = { isFocused ->
-            ispasswordErrorVisible = isFocused && password.isEmpty()
+            isPasswordErrorVisible = isFocused && password.isEmpty()
         },
         onNavigateToSignUp = { navController.navigate("signup") },
         snackbarHostState = snackbarHostState
@@ -103,20 +104,21 @@ fun LoginRoute(
 
 @Composable
 fun LoginScreen(
-    email: String,
-    onEmailChange: (String) -> Unit,
+    username: String,
+    onUsernameChange: (String) -> Unit,
     password: String,
     onPasswordChange: (String) -> Unit,
     passwordVisible: Boolean,
     onPasswordVisibilityChange: () -> Unit,
     onLoginClick: () -> Unit,
+    usernameErrorVisible: Boolean,
     passwordErrorVisible: Boolean,
-    onEmailFocusChanged: (Boolean) -> Unit,
+    onUsernameFocusChanged: (Boolean) -> Unit,
     onPasswordFocusChanged: (Boolean) -> Unit,
     onNavigateToSignUp: () -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
-    val emailFocusRequester = remember { FocusRequester() }
+    val usernameFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
     val loginButtonFocusRequester = remember { FocusRequester() }
 
@@ -139,15 +141,15 @@ fun LoginScreen(
         )
 
         WavveTextField(
-            value = email,
-            onValueChange = onEmailChange,
-            placeholder = "이메일 입력",
+            value = username,
+            onValueChange = onUsernameChange,
+            placeholder = "사용자 이름 입력",
             onFocusChanged = { isFocused ->
-                onEmailFocusChanged(isFocused)
+                onUsernameFocusChanged(isFocused)
             },
             onNext = { passwordFocusRequester.requestFocus() },
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = Next),
-            modifier = Modifier.focusRequester(emailFocusRequester)
+            modifier = Modifier.focusRequester(usernameFocusRequester)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
