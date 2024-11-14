@@ -43,7 +43,7 @@ fun WavveTextField(
     onPasswordVisibilityChange: (() -> Unit)? = null,
     errorMessage: String? = null,
     onFocusChanged: (Boolean) -> Unit,
-    onNext: () -> Unit,
+    onNext: () -> Unit = {},
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     modifier: Modifier = Modifier
 ) {
