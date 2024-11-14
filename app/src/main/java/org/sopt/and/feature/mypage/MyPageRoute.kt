@@ -53,6 +53,32 @@ fun MyPageScreen(
     interestedMovieList: List<Int> = emptyList(),
     editorPickList: List<Int> = emptyList()
 ) {
+    val interestsSections = listOf(
+        InterestsSectionData(
+            titleResId = R.string.full_view_history,
+            emptyMessageResId = R.string.no_full_view_history,
+            interests = viewHistoryList,
+            maxItems = 20
+        ),
+        InterestsSectionData(
+            titleResId = R.string.interested_program,
+            emptyMessageResId = R.string.no_interested_program,
+            interests = interestedProgramList,
+            maxItems = 1
+        ),
+        InterestsSectionData(
+            titleResId = R.string.interested_movie,
+            emptyMessageResId = R.string.no_interested_movie,
+            interests = interestedMovieList
+        ),
+        InterestsSectionData(
+            titleResId = R.string.interested_editor_pick,
+            emptyMessageResId = R.string.empty_editor_pick,
+            interests = editorPickList,
+            showMoreButton = false
+        )
+    )
+
     LazyColumn(
         modifier = Modifier.defaultScreenBackground(),
         verticalArrangement = Arrangement.Top
@@ -61,45 +87,17 @@ fun MyPageScreen(
             ProfileSection(userEmail = userEmail)
         }
 
-        item {
-            InterestsSection(
-                title = stringResource(R.string.full_view_history),
-                emptyMessage = stringResource(R.string.no_full_view_history),
-                interests = viewHistoryList,
-                showMoreButton = true,
-                onMoreClick = { /* 더보기 처리 */ },
-                itemCount = 20
-            )
-        }
-
-        item {
-            InterestsSection(
-                title = stringResource(R.string.interested_program),
-                emptyMessage = stringResource(R.string.no_interested_program),
-                interests = interestedProgramList,
-                showMoreButton = true,
-                onMoreClick = { /* 더보기 처리 */ },
-                itemCount = 1
-            )
-        }
-
-        item {
-            InterestsSection(
-                title = stringResource(R.string.interested_movie),
-                emptyMessage = stringResource(R.string.no_interested_movie),
-                interests = interestedMovieList,
-                showMoreButton = true,
-                onMoreClick = { /* 더보기 처리 */ }
-            )
-        }
-
-        item {
-            InterestsSection(
-                title = stringResource(R.string.interested_editor_pick),
-                emptyMessage = stringResource(R.string.empty_editor_pick),
-                interests = editorPickList,
-                showMoreButton = false
-            )
+        interestsSections.forEach { sectionData ->
+            item {
+                Spacer(modifier = Modifier.padding(top = 20.dp))
+                InterestsSection(
+                    title = stringResource(sectionData.titleResId),
+                    emptyMessage = stringResource(sectionData.emptyMessageResId),
+                    interests = sectionData.interests.take(sectionData.maxItems),
+                    showMoreButton = sectionData.showMoreButton,
+                    onMoreClick = { /* 더보기 처리 */ }
+                )
+            }
         }
 
         item {
@@ -149,7 +147,6 @@ private fun ProfileSection(userEmail: String) {
         )
     }
 }
-
 
 @Composable
 private fun LogoutButton(onClick: () -> Unit) {

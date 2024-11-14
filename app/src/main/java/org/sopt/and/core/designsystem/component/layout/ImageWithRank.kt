@@ -1,5 +1,6 @@
 package org.sopt.and.core.designsystem.component.layout
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,7 +22,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ImageWithRank(
     modifier: Modifier = Modifier,
-    imageResId: Int,
+    @DrawableRes imageResId: Int,
     rank: Int,
     aspectRatio: Float = 2f/3f
 ) {

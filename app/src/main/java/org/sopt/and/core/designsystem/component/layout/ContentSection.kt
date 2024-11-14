@@ -13,7 +13,6 @@ fun ContentSection(
     modifier: Modifier = Modifier,
     showMoreButton: Boolean = true,
     onMoreClick: () -> Unit = {},
-    emptyContent: @Composable () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     Column(modifier = modifier) {

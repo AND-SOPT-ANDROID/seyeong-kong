@@ -18,8 +18,8 @@ import org.sopt.and.R
 
 @Composable
 fun SectionHeader(
-    modifier: Modifier = Modifier,
     title: String,
+    modifier: Modifier = Modifier,
     showMoreButton: Boolean = true,
     onMoreClick: () -> Unit = {}
 ) {

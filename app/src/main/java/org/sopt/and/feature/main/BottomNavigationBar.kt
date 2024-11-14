@@ -19,7 +19,8 @@ import org.sopt.and.ui.theme.DarkGray3
 @Composable
 fun BottomNavigationBar(
     navController: NavController,
-    modifier: Modifier = Modifier) {
+    modifier: Modifier = Modifier
+) {
     val items = listOf(
         Screen.Home,
         Screen.Search,

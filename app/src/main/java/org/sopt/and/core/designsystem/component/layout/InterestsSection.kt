@@ -12,7 +12,6 @@ fun InterestsSection(
     title: String,
     emptyMessage: String,
     interests: List<Int> = emptyList(),
-    itemCount: Int = 20,
     showMoreButton: Boolean = true,
     onMoreClick: () -> Unit = {}
 ) {
@@ -28,7 +27,7 @@ fun InterestsSection(
             )
         } else {
             HorizontalPosterRow(
-                items = interests.take(itemCount),
+                items = interests,
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             )

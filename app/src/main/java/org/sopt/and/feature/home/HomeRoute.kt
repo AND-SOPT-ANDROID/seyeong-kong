@@ -89,14 +89,15 @@ private fun TopRankSection() {
         val rankItems = (1..20).toList()
 
         HorizontalContentRow(
+            items = rankItems,
+            itemContent = { rank ->
+                ImageWithRank(
+                    imageResId = R.drawable.img2,
+                    rank = rank
+                )
+            },
             contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            items = rankItems
-        ) { rank ->
-            ImageWithRank(
-                imageResId = R.drawable.img2,
-                rank = rank
-            )
-        }
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        )
     }
 }

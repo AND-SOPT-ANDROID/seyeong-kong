@@ -10,11 +10,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun <T> HorizontalContentRow(
+    items: List<T>,
+    itemContent: @Composable (T) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
-    items: List<T>,
-    itemContent: @Composable (T) -> Unit
 ) {
     LazyRow(
         modifier = modifier,
