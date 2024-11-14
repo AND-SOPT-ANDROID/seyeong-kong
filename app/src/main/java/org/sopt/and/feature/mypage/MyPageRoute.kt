@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.sopt.and.R
@@ -31,10 +32,16 @@ import org.sopt.and.ui.theme.DarkGray2
 
 @Composable
 fun MyPageRoute(navController: NavController, viewModel: MyPageViewModel = viewModel()) {
-    val userEmail = viewModel.userEmail
+    val hobby = viewModel.hobby.collectAsStateWithLifecycle(
+        initialValue = "취미가 없습니다"
+    ).value
+    val isLoading = viewModel.loading.collectAsStateWithLifecycle(
+        initialValue = false
+    ).value
 
     MyPageScreen(
-        userEmail = userEmail,
+        hobby = hobby ?: "취미가 없습니다",
+        isLoading = isLoading,
         onLogout = {
             viewModel.logout()
             navController.navigate("login") {
@@ -46,7 +53,8 @@ fun MyPageRoute(navController: NavController, viewModel: MyPageViewModel = viewM
 
 @Composable
 fun MyPageScreen(
-    userEmail: String,
+    hobby: String,
+    isLoading: Boolean,
     onLogout: () -> Unit,
     viewHistoryList: List<Int> = emptyList(),
     interestedProgramList: List<Int> = emptyList(),
@@ -84,7 +92,7 @@ fun MyPageScreen(
         verticalArrangement = Arrangement.Top
     ) {
         item {
-            ProfileSection(userEmail = userEmail)
+            ProfileSection(hobby = hobby, isLoading = isLoading)
         }
 
         interestsSections.forEach { sectionData ->
@@ -107,7 +115,7 @@ fun MyPageScreen(
 }
 
 @Composable
-private fun ProfileSection(userEmail: String) {
+private fun ProfileSection(hobby: String, isLoading: Boolean) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -126,11 +134,19 @@ private fun ProfileSection(userEmail: String) {
             )
 
             Spacer(modifier = Modifier.padding(8.dp))
-            Text(
-                text = stringResource(R.string.user_name_format, userEmail),
-                color = Color.LightGray,
-                fontSize = 16.sp
-            )
+            if (isLoading) {
+                Text(
+                    text = "로딩 중...",
+                    color = Color.LightGray,
+                    fontSize = 16.sp
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.user_hobby_format, hobby),
+                    color = Color.LightGray,
+                    fontSize = 16.sp
+                )
+            }
         }
 
         Text(
