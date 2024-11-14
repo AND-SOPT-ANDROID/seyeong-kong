@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,6 +24,7 @@ import org.sopt.and.feature.mypage.MyPageViewModel
 import org.sopt.and.feature.search.SearchRoute
 import org.sopt.and.feature.signup.SignUpRoute
 import org.sopt.and.feature.signup.SignUpViewModel
+import org.sopt.and.network.ServicePool.userService
 import org.sopt.and.ui.theme.ANDANDROIDTheme
 
 class MainActivity : ComponentActivity() {
@@ -30,19 +33,28 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        userRepository = UserRepository(this)
+        userRepository = UserRepository(userService, applicationContext)
 
         setContent {
+            val isLoggedIn = remember { mutableStateOf(userRepository.isLoggedIn()) }
+
             ANDANDROIDTheme {
                 ChangeStatusBarColor()
                 val navController = rememberNavController()
 
+                navController.addOnDestinationChangedListener { _, _, _ ->
+                    isLoggedIn.value = userRepository.isLoggedIn()
+                }
+
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        if (userRepository.isLoggedIn()) {
-                            BottomNavigationBar(navController = navController)
-                            Modifier.navigationBarsPadding()
+                        if (isLoggedIn.value) {
+                            BottomNavigationBar(
+                                navController = navController,
+                                modifier = Modifier.navigationBarsPadding()
+                            )
                         }
                     }
                 ) { innerPadding ->
