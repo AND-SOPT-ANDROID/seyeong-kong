@@ -1,9 +1,9 @@
-package org.sopt.and.network
+package org.sopt.and.data.service
 
-import org.sopt.and.network.request.RequestLoginDto
-import org.sopt.and.network.request.RequestSignUpDto
-import org.sopt.and.network.response.ResponseDto
-import org.sopt.and.network.response.ResponseHobbyDto
+import org.sopt.and.data.dto.request.RequestLoginDto
+import org.sopt.and.data.dto.request.RequestSignUpDto
+import org.sopt.and.data.dto.response.ResponseDto
+import org.sopt.and.data.dto.response.ResponseHobbyDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET

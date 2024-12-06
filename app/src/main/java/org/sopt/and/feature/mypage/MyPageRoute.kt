@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.sopt.and.R
 import org.sopt.and.core.common.modifier.defaultScreenBackground
@@ -31,17 +31,14 @@ import org.sopt.and.core.designsystem.component.layout.InterestsSection
 import org.sopt.and.ui.theme.DarkGray2
 
 @Composable
-fun MyPageRoute(navController: NavController, viewModel: MyPageViewModel = viewModel()) {
-    val hobby = viewModel.hobby.collectAsStateWithLifecycle(
-        initialValue = "취미가 없습니다"
-    ).value
-    val isLoading = viewModel.loading.collectAsStateWithLifecycle(
-        initialValue = false
-    ).value
+fun MyPageRoute(
+    navController: NavController,
+    viewModel: MyPageViewModel
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     MyPageScreen(
-        hobby = hobby ?: "취미가 없습니다",
-        isLoading = isLoading,
+        state = uiState,
         onLogout = {
             viewModel.logout()
             navController.navigate("login") {
@@ -53,8 +50,7 @@ fun MyPageRoute(navController: NavController, viewModel: MyPageViewModel = viewM
 
 @Composable
 fun MyPageScreen(
-    hobby: String,
-    isLoading: Boolean,
+    state: MyPageState,
     onLogout: () -> Unit,
     viewHistoryList: List<Int> = emptyList(),
     interestedProgramList: List<Int> = emptyList(),
@@ -92,7 +88,10 @@ fun MyPageScreen(
         verticalArrangement = Arrangement.Top
     ) {
         item {
-            ProfileSection(hobby = hobby, isLoading = isLoading)
+            ProfileSection(
+                hobby = state.hobby ?: "취미가 없습니다",
+                isLoading = state.isLoading
+            )
         }
 
         interestsSections.forEach { sectionData ->

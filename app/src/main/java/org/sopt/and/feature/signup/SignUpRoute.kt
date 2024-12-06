@@ -20,10 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -33,9 +30,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction.Companion.Next
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.sopt.and.core.common.modifier.noRippleClickable
 import org.sopt.and.core.designsystem.component.button.WavveButton
@@ -53,16 +50,11 @@ fun SignUpRoute(
     navController: NavController,
     viewModel: SignUpViewModel = viewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
 
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var hobby by remember { mutableStateOf("") }
-    var isPasswordVisible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(viewModel.signUpEvent) {
-        viewModel.signUpEvent.collect { event ->
+    LaunchedEffect(uiState.signUpEvent) {
+        uiState.signUpEvent?.let { event ->
             when (event) {
                 is SignUpEvent.Success -> {
                     navController.navigate(LoginRoute.route) {
@@ -70,37 +62,30 @@ fun SignUpRoute(
                     }
                 }
                 is SignUpEvent.Failure -> {
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar(event.message)
-                    }
+                    snackbarHostState.showSnackbar(event.message)
                 }
             }
+            viewModel.consumeSignUpEvent()
         }
     }
 
     SignUpScreen(
-        username = username,
-        onUsernameChange = { username = it },
-        password = password,
-        onPasswordChange = { password = it },
-        hobby = hobby,
-        onHobbyChange = { hobby = it },
-        passwordVisible = isPasswordVisible,
-        onPasswordVisibilityChange = { isPasswordVisible = !isPasswordVisible },
-        onSignUpClick = { viewModel.onSignUpClick(username, password, hobby) },
+        state = uiState,
+        onUsernameChange = viewModel::updateUsername,
+        onPasswordChange = viewModel::updatePassword,
+        onHobbyChange = viewModel::updateHobby,
+        onPasswordVisibilityChange = viewModel::togglePasswordVisibility,
+        onSignUpClick = viewModel::onSignUpClick,
         snackbarHostState = snackbarHostState
     )
 }
 
 @Composable
 fun SignUpScreen(
-    username: String,
+    state: SignUpState,
     onUsernameChange: (String) -> Unit,
-    password: String,
     onPasswordChange: (String) -> Unit,
-    hobby: String,
     onHobbyChange: (String) -> Unit,
-    passwordVisible: Boolean,
     onPasswordVisibilityChange: () -> Unit,
     onSignUpClick: () -> Unit,
     snackbarHostState: SnackbarHostState
@@ -138,7 +123,7 @@ fun SignUpScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             WavveTextField(
-                value = username,
+                value = state.username,
                 onValueChange = onUsernameChange,
                 placeholder = "사용자 이름",
                 onFocusChanged = { /* 사용자 이름 필드의 포커스 변화 처리 */ },
@@ -150,11 +135,11 @@ fun SignUpScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             WavveTextField(
-                value = password,
+                value = state.password,
                 onValueChange = onPasswordChange,
                 placeholder = "비밀번호 설정",
                 isPassword = true,
-                passwordVisible = passwordVisible,
+                passwordVisible = state.passwordVisible,
                 onPasswordVisibilityChange = onPasswordVisibilityChange,
                 onFocusChanged = { /* 비밀번호 필드의 포커스 변화 처리 */ },
                 onNext = { hobbyFocusRequester.requestFocus() },
@@ -164,7 +149,7 @@ fun SignUpScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             WavveTextField(
-                value = hobby,
+                value = state.hobby,
                 onValueChange = onHobbyChange,
                 placeholder = "취미",
                 onFocusChanged = { /* 취미 필드의 포커스 변화 처리 */ },

@@ -1,4 +1,4 @@
-package org.sopt.and.network.response
+package org.sopt.and.data.dto.response
 
 import kotlinx.serialization.Serializable
 

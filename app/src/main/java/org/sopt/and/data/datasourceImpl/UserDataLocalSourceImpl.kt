@@ -1,10 +1,13 @@
-package org.sopt.and.data
+package org.sopt.and.data.datasourceImpl
 
 import android.content.SharedPreferences
+import org.sopt.and.data.datasource.UserDataLocalSource
 
-class DataSource(private val sharedPreferences: SharedPreferences) {
+class UserDataLocalSourceImpl(
+    private val sharedPreferences: SharedPreferences
+) : UserDataLocalSource {
 
-    fun saveUserInfo(username: String, password: String, hobby: String) {
+    override fun saveUserInfo(username: String, password: String, hobby: String) {
         sharedPreferences.edit().apply {
             putString(KEY_USER_USERNAME, username)
             putString(KEY_USER_PASSWORD, password)
@@ -13,7 +16,7 @@ class DataSource(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun saveUserToken(token: String) {
+    override fun saveUserToken(token: String) {
         sharedPreferences.edit().apply {
             putString(KEY_USER_TOKEN, token)
             putBoolean(KEY_IS_LOGGED_IN, true)
@@ -21,27 +24,27 @@ class DataSource(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun getToken(): String? {
+    override fun getToken(): String? {
         return sharedPreferences.getString(KEY_USER_TOKEN, null)
     }
 
-    fun getUsername(): String? {
+    override fun getUsername(): String? {
         return sharedPreferences.getString(KEY_USER_USERNAME, null)
     }
 
-    fun getPassword(): String? {
+    override fun getPassword(): String? {
         return sharedPreferences.getString(KEY_USER_PASSWORD, null)
     }
 
-    fun getHobby(): String? {
+    override fun getHobby(): String? {
         return sharedPreferences.getString(KEY_USER_HOBBY, null)
     }
 
-    fun isLoggedIn(): Boolean {
+    override fun isLoggedIn(): Boolean {
         return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false)
     }
 
-    fun clearUserCredentials() {
+    override fun clearUserCredentials() {
         sharedPreferences.edit().clear().apply()
     }
 

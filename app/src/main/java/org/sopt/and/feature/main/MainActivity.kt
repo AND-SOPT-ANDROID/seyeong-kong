@@ -15,7 +15,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.sopt.and.core.designsystem.theme.color.ChangeStatusBarColor
-import org.sopt.and.data.UserRepository
+import org.sopt.and.data.datasourceImpl.UserDataLocalSourceImpl
+import org.sopt.and.data.datasourceImpl.UserRemoteDataSourceImpl
+import org.sopt.and.data.repository.UserRepository
+import org.sopt.and.domain.repository.UserRepositoryImpl
 import org.sopt.and.feature.home.HomeRoute
 import org.sopt.and.feature.login.LoginRoute
 import org.sopt.and.feature.login.LoginViewModel
@@ -33,7 +36,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        userRepository = UserRepository(userService, applicationContext)
+        val sharedPreferences = applicationContext.getSharedPreferences("UserPrefs", MODE_PRIVATE)
+        val userLocalDataSource = UserDataLocalSourceImpl(sharedPreferences)
+        val userRemoteDataSource = UserRemoteDataSourceImpl(userService)
+
+        userRepository = UserRepositoryImpl(
+            userRemoteDataSource = userRemoteDataSource,
+            userLocalDataSource = userLocalDataSource
+        )
+
 
         setContent {
             val isLoggedIn = remember { mutableStateOf(userRepository.isLoggedIn()) }
