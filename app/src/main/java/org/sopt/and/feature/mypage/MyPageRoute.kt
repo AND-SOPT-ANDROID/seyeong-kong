@@ -23,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import org.sopt.and.R
 import org.sopt.and.core.common.modifier.defaultScreenBackground
 import org.sopt.and.core.common.modifier.noRippleClickable
@@ -32,53 +31,46 @@ import org.sopt.and.ui.theme.DarkGray2
 
 @Composable
 fun MyPageRoute(
-    navController: NavController,
+    onLogout: () -> Unit,
     viewModel: MyPageViewModel
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     MyPageScreen(
-        state = uiState,
-        onLogout = {
-            viewModel.logout()
-            navController.navigate("login") {
-                popUpTo("mypage") { inclusive = true }
-            }
-        }
+        state = state,
+        onIntent = viewModel::handleIntent,
+        onLogout = onLogout
     )
 }
 
 @Composable
 fun MyPageScreen(
     state: MyPageState,
-    onLogout: () -> Unit,
-    viewHistoryList: List<Int> = emptyList(),
-    interestedProgramList: List<Int> = emptyList(),
-    interestedMovieList: List<Int> = emptyList(),
-    editorPickList: List<Int> = emptyList()
+    onIntent: (MyPageIntent) -> Unit,
+    onLogout: () -> Unit
 ) {
     val interestsSections = listOf(
         InterestsSectionData(
             titleResId = R.string.full_view_history,
             emptyMessageResId = R.string.no_full_view_history,
-            interests = viewHistoryList,
+            interests = state.viewHistoryList,
             maxItems = 20
         ),
         InterestsSectionData(
             titleResId = R.string.interested_program,
             emptyMessageResId = R.string.no_interested_program,
-            interests = interestedProgramList,
+            interests = state.interestedProgramList,
             maxItems = 1
         ),
         InterestsSectionData(
             titleResId = R.string.interested_movie,
             emptyMessageResId = R.string.no_interested_movie,
-            interests = interestedMovieList
+            interests = state.interestedMovieList
         ),
         InterestsSectionData(
             titleResId = R.string.interested_editor_pick,
             emptyMessageResId = R.string.empty_editor_pick,
-            interests = editorPickList,
+            interests = state.editorPickList,
             showMoreButton = false
         )
     )
@@ -108,7 +100,12 @@ fun MyPageScreen(
         }
 
         item {
-            LogoutButton(onClick = onLogout)
+            LogoutButton(
+                onClick = {
+                    onIntent(MyPageIntent.Logout)
+                    onLogout()
+                }
+            )
         }
     }
 }
