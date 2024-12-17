@@ -18,10 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -34,88 +31,48 @@ import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.input.ImeAction.Companion.Next
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.sopt.and.core.common.modifier.noRippleClickable
 import org.sopt.and.core.designsystem.component.button.WavveButton
 import org.sopt.and.core.designsystem.component.textfield.WavveTextField
 import org.sopt.and.ui.theme.DarkGray3
-import kotlinx.serialization.Serializable
-import org.sopt.and.feature.main.Screen
-
-@Serializable
-data object LoginRoute {
-    const val route = "login"
-}
 
 @Composable
 fun LoginRoute(
-    navController: NavController,
-    viewModel: LoginViewModel = viewModel()
+    onSignUpClick: () -> Unit,
+    onLoginSuccess: () -> Unit,
+    viewModel: LoginViewModel
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
 
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var isPasswordVisible by remember { mutableStateOf(false) }
-    var isUsernameErrorVisible by remember { mutableStateOf(false) }
-    var isPasswordErrorVisible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(viewModel.loginEvent) {
-        viewModel.loginEvent.collect { event ->
+    LaunchedEffect(uiState.loginEvent) {
+        uiState.loginEvent?.let { event ->
             when (event) {
                 is LoginEvent.Success -> {
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Home.route) { inclusive = true }
-                    }
+                    onLoginSuccess()
                 }
-
                 is LoginEvent.Failure -> {
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar(event.message)
-                    }
+                    snackbarHostState.showSnackbar(event.message)
                 }
             }
+            viewModel.handleIntent(LoginIntent.ConsumeLoginEvent)
         }
     }
 
     LoginScreen(
-        username = username,
-        onUsernameChange = { username = it },
-        password = password,
-        onPasswordChange = { password = it },
-        passwordVisible = isPasswordVisible,
-        onPasswordVisibilityChange = { isPasswordVisible = !isPasswordVisible },
-        onLoginClick = { viewModel.onLoginClick(username, password) },
-        usernameErrorVisible = isUsernameErrorVisible,
-        passwordErrorVisible = isPasswordErrorVisible,
-        onUsernameFocusChanged = { isFocused ->
-            isUsernameErrorVisible = isFocused && username.isEmpty()
-        },
-        onPasswordFocusChanged = { isFocused ->
-            isPasswordErrorVisible = isFocused && password.isEmpty()
-        },
-        onNavigateToSignUp = { navController.navigate("signup") },
+        state = uiState,
+        onIntent = viewModel::handleIntent,
+        onSignUpClick = onSignUpClick,
         snackbarHostState = snackbarHostState
     )
 }
 
 @Composable
 fun LoginScreen(
-    username: String,
-    onUsernameChange: (String) -> Unit,
-    password: String,
-    onPasswordChange: (String) -> Unit,
-    passwordVisible: Boolean,
-    onPasswordVisibilityChange: () -> Unit,
-    onLoginClick: () -> Unit,
-    usernameErrorVisible: Boolean,
-    passwordErrorVisible: Boolean,
-    onUsernameFocusChanged: (Boolean) -> Unit,
-    onPasswordFocusChanged: (Boolean) -> Unit,
-    onNavigateToSignUp: () -> Unit,
+    state: LoginState,
+    onIntent: (LoginIntent) -> Unit,
+    onSignUpClick: () -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
     val usernameFocusRequester = remember { FocusRequester() }
@@ -141,11 +98,11 @@ fun LoginScreen(
         )
 
         WavveTextField(
-            value = username,
-            onValueChange = onUsernameChange,
+            value = state.username,
+            onValueChange = { onIntent(LoginIntent.UpdateUsername(it)) },
             placeholder = "사용자 이름 입력",
             onFocusChanged = { isFocused ->
-                onUsernameFocusChanged(isFocused)
+                onIntent(LoginIntent.UpdateUsernameFocusState(isFocused))
             },
             onNext = { passwordFocusRequester.requestFocus() },
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = Next),
@@ -155,15 +112,15 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         WavveTextField(
-            value = password,
-            onValueChange = onPasswordChange,
+            value = state.password,
+            onValueChange = { onIntent(LoginIntent.UpdatePassword(it)) },
             placeholder = "비밀번호 입력",
             isPassword = true,
-            passwordVisible = passwordVisible,
-            onPasswordVisibilityChange = onPasswordVisibilityChange,
-            errorMessage = if (passwordErrorVisible) "비밀번호를 입력해주세요." else null,
+            passwordVisible = state.passwordVisible,
+            onPasswordVisibilityChange = { onIntent(LoginIntent.TogglePasswordVisibility) },
+            errorMessage = if (state.isPasswordErrorVisible) "비밀번호를 입력해주세요." else null,
             onFocusChanged = { isFocused ->
-                onPasswordFocusChanged(isFocused)
+                onIntent(LoginIntent.UpdatePasswordFocusState(isFocused))
             },
             onNext = { loginButtonFocusRequester.requestFocus() },
             modifier = Modifier.focusRequester(passwordFocusRequester)
@@ -174,13 +131,11 @@ fun LoginScreen(
             color = Gray,
             fontWeight = Normal,
             modifier = Modifier
-                .noRippleClickable {
-                    onNavigateToSignUp()
-                }
+                .noRippleClickable(onSignUpClick)
                 .padding(vertical = 8.dp)
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
         SnackbarHost(
             hostState = snackbarHostState,
@@ -191,11 +146,11 @@ fun LoginScreen(
 
         WavveButton(
             text = "로그인",
-            onClick = onLoginClick,
+            onClick = { onIntent(LoginIntent.Login) },
             modifier = Modifier
                 .fillMaxWidth()
                 .imePadding()
-                .noRippleClickable { onLoginClick() },
+                .focusRequester(loginButtonFocusRequester),
             backgroundColor = Blue,
             cornerRadius = 12.dp,
             textSize = 16.sp,
