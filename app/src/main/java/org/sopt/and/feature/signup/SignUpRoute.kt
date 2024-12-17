@@ -31,24 +31,14 @@ import androidx.compose.ui.text.input.ImeAction.Companion.Next
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import kotlinx.serialization.Serializable
-import org.sopt.and.core.common.modifier.noRippleClickable
 import org.sopt.and.core.designsystem.component.button.WavveButton
-import org.sopt.and.feature.login.LoginRoute
 import org.sopt.and.ui.theme.DarkGray2
 import org.sopt.and.ui.theme.DarkGray3
 
-@Serializable
-data object SignUpRoute {
-    const val route = "signup"
-}
-
 @Composable
 fun SignUpRoute(
-    navController: NavController,
-    viewModel: SignUpViewModel = viewModel()
+    onSignUpSuccess: () -> Unit,
+    viewModel: SignUpViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -57,25 +47,19 @@ fun SignUpRoute(
         uiState.signUpEvent?.let { event ->
             when (event) {
                 is SignUpEvent.Success -> {
-                    navController.navigate(LoginRoute.route) {
-                        popUpTo(SignUpRoute.route) { inclusive = true }
-                    }
+                    onSignUpSuccess()
                 }
                 is SignUpEvent.Failure -> {
                     snackbarHostState.showSnackbar(event.message)
                 }
             }
-            viewModel.consumeSignUpEvent()
+            viewModel.handleIntent(SignUpIntent.ConsumeSignUpEvent)
         }
     }
 
     SignUpScreen(
         state = uiState,
-        onUsernameChange = viewModel::updateUsername,
-        onPasswordChange = viewModel::updatePassword,
-        onHobbyChange = viewModel::updateHobby,
-        onPasswordVisibilityChange = viewModel::togglePasswordVisibility,
-        onSignUpClick = viewModel::onSignUpClick,
+        onIntent = viewModel::handleIntent,
         snackbarHostState = snackbarHostState
     )
 }
@@ -83,11 +67,7 @@ fun SignUpRoute(
 @Composable
 fun SignUpScreen(
     state: SignUpState,
-    onUsernameChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onHobbyChange: (String) -> Unit,
-    onPasswordVisibilityChange: () -> Unit,
-    onSignUpClick: () -> Unit,
+    onIntent: (SignUpIntent) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
     val usernameFocusRequester = remember { FocusRequester() }
@@ -124,7 +104,7 @@ fun SignUpScreen(
 
             WavveTextField(
                 value = state.username,
-                onValueChange = onUsernameChange,
+                onValueChange = { onIntent(SignUpIntent.UpdateUsername(it)) },
                 placeholder = "사용자 이름",
                 onFocusChanged = { /* 사용자 이름 필드의 포커스 변화 처리 */ },
                 onNext = { passwordFocusRequester.requestFocus() },
@@ -136,11 +116,11 @@ fun SignUpScreen(
 
             WavveTextField(
                 value = state.password,
-                onValueChange = onPasswordChange,
+                onValueChange = { onIntent(SignUpIntent.UpdatePassword(it)) },
                 placeholder = "비밀번호 설정",
                 isPassword = true,
                 passwordVisible = state.passwordVisible,
-                onPasswordVisibilityChange = onPasswordVisibilityChange,
+                onPasswordVisibilityChange = { onIntent(SignUpIntent.TogglePasswordVisibility) },
                 onFocusChanged = { /* 비밀번호 필드의 포커스 변화 처리 */ },
                 onNext = { hobbyFocusRequester.requestFocus() },
                 modifier = Modifier.focusRequester(passwordFocusRequester)
@@ -150,7 +130,7 @@ fun SignUpScreen(
 
             WavveTextField(
                 value = state.hobby,
-                onValueChange = onHobbyChange,
+                onValueChange = { onIntent(SignUpIntent.UpdateHobby(it)) },
                 placeholder = "취미",
                 onFocusChanged = { /* 취미 필드의 포커스 변화 처리 */ },
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = Next),
@@ -170,12 +150,11 @@ fun SignUpScreen(
 
         WavveButton(
             text = "Wavve 회원가입",
-            onClick = onSignUpClick,
+            onClick = { onIntent(SignUpIntent.SignUp) },
             modifier = Modifier
                 .fillMaxWidth()
                 .imePadding()
-                .align(Alignment.BottomCenter)
-                .noRippleClickable { onSignUpClick() },
+                .align(Alignment.BottomCenter),
             backgroundColor = DarkGray2,
             cornerRadius = 0.dp,
             textSize = 16.sp,

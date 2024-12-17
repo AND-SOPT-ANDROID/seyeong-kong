@@ -15,11 +15,24 @@ class MyPageViewModel(
     val uiState: StateFlow<MyPageState> = _uiState
 
     init {
-        loadHobby()
-        loadUserInfo()
+        handleIntent(MyPageIntent.LoadProfile)
     }
 
-    private fun loadHobby() {
+    fun handleIntent(intent: MyPageIntent) {
+        when (intent) {
+            is MyPageIntent.LoadProfile -> {
+                loadProfile()
+            }
+            is MyPageIntent.ClickMoreHistory -> {
+                // Handle
+            }
+            is MyPageIntent.Logout -> {
+                logout()
+            }
+        }
+    }
+
+    private fun loadProfile() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
@@ -35,9 +48,7 @@ class MyPageViewModel(
 
             userRepository.getHobby(token)
                 .onSuccess { hobby ->
-                    _uiState.update {
-                        it.copy(hobby = hobby)
-                    }
+                    _uiState.update { it.copy(hobby = hobby) }
                 }
                 .onFailure { error ->
                     _uiState.update {
@@ -45,22 +56,16 @@ class MyPageViewModel(
                     }
                 }
 
+            userRepository.getUserInfo()
+                .onSuccess { userEntity ->
+                    _uiState.update { it.copy(username = userEntity.username) }
+                }
+
             _uiState.update { it.copy(isLoading = false) }
         }
     }
 
-    private fun loadUserInfo() {
-        viewModelScope.launch {
-            userRepository.getUserInfo()
-                .onSuccess { userEntity ->
-                    _uiState.update {
-                        it.copy(username = userEntity.username)
-                    }
-                }
-        }
-    }
-
-    fun logout() {
+    private fun logout() {
         viewModelScope.launch {
             userRepository.logout()
             _uiState.update {

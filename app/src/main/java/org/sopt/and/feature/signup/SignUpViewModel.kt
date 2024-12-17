@@ -14,23 +14,34 @@ class SignUpViewModel(
     private val _uiState = MutableStateFlow(SignUpState())
     val uiState: StateFlow<SignUpState> = _uiState
 
-    fun updateUsername(username: String) {
+    fun handleIntent(intent: SignUpIntent) {
+        when (intent) {
+            is SignUpIntent.UpdateUsername -> updateUsername(intent.username)
+            is SignUpIntent.UpdatePassword -> updatePassword(intent.password)
+            is SignUpIntent.UpdateHobby -> updateHobby(intent.hobby)
+            is SignUpIntent.TogglePasswordVisibility -> togglePasswordVisibility()
+            is SignUpIntent.SignUp -> signUp()
+            is SignUpIntent.ConsumeSignUpEvent -> consumeSignUpEvent()
+        }
+    }
+
+    private fun updateUsername(username: String) {
         _uiState.update { it.copy(username = username) }
     }
 
-    fun updatePassword(password: String) {
+    private fun updatePassword(password: String) {
         _uiState.update { it.copy(password = password) }
     }
 
-    fun updateHobby(hobby: String) {
+    private fun updateHobby(hobby: String) {
         _uiState.update { it.copy(hobby = hobby) }
     }
 
-    fun togglePasswordVisibility() {
+    private fun togglePasswordVisibility() {
         _uiState.update { it.copy(passwordVisible = !it.passwordVisible) }
     }
 
-    fun onSignUpClick() {
+    private fun signUp() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
@@ -57,7 +68,7 @@ class SignUpViewModel(
         }
     }
 
-    fun consumeSignUpEvent() {
+    private fun consumeSignUpEvent() {
         _uiState.update { it.copy(signUpEvent = null) }
     }
 }
