@@ -21,23 +21,17 @@ fun BottomNavigationBar(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    val items = listOf(
-        Screen.Home,
-        Screen.Search,
-        Screen.Profile
-    )
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
 
     NavigationBar(
         containerColor = DarkGray3,
         modifier = modifier
     ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = navBackStackEntry?.destination
-
-        items.forEach { screen ->
+        bottomNavigationItems.forEach { screen ->
             NavigationBarItem(
-                icon = { Icon(Icons.Filled.Home, contentDescription = screen.route) },
-                label = { Text(stringResource(screen.resourceId)) },
+                icon = { Icon(screen.icon, contentDescription = null) },
+                label = { Text(stringResource(screen.titleResId)) },
                 selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                 onClick = {
                     navController.navigate(screen.route) {
